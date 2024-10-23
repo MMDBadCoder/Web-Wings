@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "Network Request Capturer",
+  "version": "1.0",
+  "permissions": [
+    "webRequest",
+    "declarativeNetRequest",
+    "storage",
+    "scripting",
+    "cookies",
+    "tabs",
+    "activeTab"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "19": "icons/blue.png",
+      "38": "icons/blue.png"
+    }
+  }
+}

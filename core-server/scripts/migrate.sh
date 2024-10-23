@@ -1,0 +1,1 @@
+alembic -c alembic/alembic.ini upgrade head

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web Wings</title>
+  <!-- Semantic UI CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 10px;
+      width: 300px;
+      font-family: Arial, sans-serif;
+    }
+
+    .extension-title {
+      font-size: 1.5em;
+      text-align: center;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    .status-message {
+      text-align: center;
+      padding: 20px;
+      font-size: 1.0em;
+      font-weight: bold;
+      color: white;
+      border-radius: 5px;
+      margin-bottom: 15px;
+    }
+
+    .ignored {
+      background-color: #696969;
+      /* Gray for ignored */
+    }
+
+    .captured {
+      background-color: #21ba45;
+      /* Green for captured */
+    }
+
+    .sniffing {
+      background-color: #2185d0;
+      /* Blue for sniffing */
+    }
+
+    .icon {
+      margin-right: 10px;
+    }
+
+    /* Separator styling */
+    .ui.divider {
+      margin: 20px 0;
+    }
+
+    /* Form inputs styling */
+    .form-container {
+      margin-top: 15px;
+    }
+
+    .error {
+      color: red;
+      margin-top: 5px;
+      font-size: 0.9em;
+    }
+
+    .checkbox-group {
+      margin-bottom: 20px;
+    }
+
+    .checkbox-item {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Extension Title -->
+  <div class="extension-title">Web Wings</div>
+
+  <!-- Status Display -->
+  <div id="statusDisplay" class="ui segment">
+    <div id="statusText" class="status-message ignored">
+      <i class="icon exclamation triangle"></i>
+      <span>This website is ignored</span>
+    </div>
+  </div>
+
+  <!-- Separator -->
+  <div class="ui divider"></div>
+
+  <!-- Form Section -->
+  <div class="form-container">
+    <!-- Heading for the form -->
+    <h2 class="ui header">
+      <i class="print icon"></i>
+      <div class="content">
+        Generate Report
+      </div>
+    </h2>
+
+    <form class="ui form">
+      <!-- Start Time (days ago) -->
+      <div class="field">
+        <label>Start Time (Days Ago)</label>
+        <input type="number" id="startTime" min="0" max="999" placeholder="Enter start time (days ago)" value="30"
+          required>
+      </div>
+
+      <!-- End Time (days ago) -->
+      <div class="field">
+        <label>End Time (Days Ago)</label>
+        <input type="number" id="endTime" min="0" max="999" placeholder="Enter end time (days ago)" value="0" required>
+      </div>
+
+      <!-- Validation Error Message -->
+      <div class="error" id="validationError"></div>
+
+      <!-- Checkbox Group -->
+      <div class="checkbox-group" id="checkboxGroup">
+        <!-- Checkboxes will be dynamically generated -->
+      </div>
+    </form>
+
+    <!-- Generate Button -->
+    <button id="generateButton" class="ui button primary" style="margin-bottom: 20px;">Generate</button>
+  </div>
+
+  <!-- Popup JavaScript -->
+  <script src="popup.js"></script>
+</body>
+
+</html>
