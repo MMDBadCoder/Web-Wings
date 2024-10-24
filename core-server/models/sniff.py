@@ -1,6 +1,6 @@
 from pydantic import BaseModel
-from sqlalchemy import Column, Integer, String, Text, JSON
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String, DateTime, JSON, func
+from sqlalchemy import Text
 
 from database.database import Base
 from models.service_item import ServiceStatusForUser
@@ -14,9 +14,7 @@ class SniffEntity(Base):
     service_id = Column(Integer, index=True, nullable=False)
     headers = Column(JSON, nullable=False)  # Assuming headers will be stored as a JSON object
     cookies = Column(Text, nullable=False)
-
-    # Define back-population to SharedSessionEntity
-    shared_sessions = relationship("SharedSessionEntity", back_populates="sniff_entity")
+    last_tested_time = Column(DateTime, server_default=func.now(), nullable=False)
 
 
 class SniffDto(BaseModel):
@@ -36,4 +34,3 @@ class SniffDto(BaseModel):
 
 class SniffResponseDto(BaseModel):
     status: ServiceStatusForUser
-

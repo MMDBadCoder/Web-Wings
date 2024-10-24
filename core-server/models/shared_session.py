@@ -1,7 +1,7 @@
+from typing import List
+
 from pydantic import BaseModel
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
-from sqlalchemy.orm import relationship
-from sqlalchemy.sql import func
+from sqlalchemy import Column, Integer, String, DateTime, JSON, func
 
 from database.database import Base
 
@@ -12,23 +12,24 @@ class SharedSessionEntity(Base):
     id = Column(Integer, primary_key=True, index=True, nullable=False)
     client_id = Column(String(100), index=True, nullable=False)
     session_id = Column(String(100), index=True, nullable=False)
-    service_id = Column(Integer, nullable=False)
-    sniff_id = Column(Integer, ForeignKey('sniff.id'), nullable=False)
+
+    # Storing service_ids as a list of integers using JSON column
+    service_ids = Column(JSON, nullable=False)
+
     creation_time = Column(DateTime, server_default=func.now(), nullable=False)
     expiration_duration_days = Column(Integer, nullable=True)
-
-    # Define the relationship with SniffEntity (many-to-one)
-    sniff_entity = relationship("SniffEntity", back_populates="shared_sessions")
+    expiration_time = Column(DateTime, nullable=False)
 
 
 class HeaderAndCookiesDto(BaseModel):
+    service_id: int
     headers: list
     cookies: str
 
 
 class SharedSessionCreationRequestDto(BaseModel):
     client_id: str
-    sniff_id: int
+    service_ids: List[int]
     expiration_duration_days: int
 
 
