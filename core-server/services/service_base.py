@@ -1,16 +1,7 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 
 from models.service_item import ServiceDto, ServiceStatusForUser
-from models.sniff import SniffDto
-from database.db_client import DatabaseClient
-
-
-# Define a simple data class with two fields: timestamp and value
-@dataclass
-class DataPoint:
-    timestamp: int
-    value: int
+from models.sniff import SniffEntity
 
 
 class ServiceBase(ABC):
@@ -22,15 +13,12 @@ class ServiceBase(ABC):
         self.browser_domains = browser_domains
 
     @abstractmethod
-    def test_has_access(self, stored_sniff_data: SniffDto) -> bool:
+    def test_has_access(self, sniff_entity: SniffEntity) -> bool:
         pass
 
-    def get_service_dto(self, client_id: str) -> ServiceDto:
-        redis_client: DatabaseClient = DatabaseClient.get_instance()
-        stored_sniff_data = redis_client.retrieve_sniff_entity(client_id=client_id, service_id=self.service_id)
-
+    def provide_service_dto(self, stored_sniff_entity: SniffEntity) -> ServiceDto:
         status = ServiceStatusForUser.sniffing
-        if stored_sniff_data and self.test_has_access(stored_sniff_data):
+        if stored_sniff_entity and self.test_has_access(stored_sniff_entity):
             status = ServiceStatusForUser.captured
 
         return ServiceDto(

@@ -1,4 +1,6 @@
+import json
 from contextlib import asynccontextmanager
+from datetime import datetime, timedelta
 from typing import List
 
 from fastapi import FastAPI, Query
@@ -16,6 +18,10 @@ from services.service_base import ServiceBase
 SERVICE_INSTANCES_LIST: List[ServiceBase] = [
     IranCellService.get_instance()
 ]
+
+
+def get_service_by_id(service_id: int):
+    return next((s for s in SERVICE_INSTANCES_LIST if s.service_id == service_id), None)
 
 
 @asynccontextmanager
@@ -41,7 +47,24 @@ app.add_middleware(
 
 @app.get("/services/", response_model=List[ServiceDto])
 async def get_services(client_id: str = Query(..., description="Client ID")):
-    return [s.get_service_dto(client_id=client_id) for s in SERVICE_INSTANCES_LIST]
+    db_client: DatabaseClient = DatabaseClient.get_instance()
+    stored_sniff_entities = db_client.get_sniff_entities_by_client_id(client_id)
+    deleting_sniff_ids = []
+    added_service_ids = []
+    one_hour_ago = datetime.now() - timedelta(hours=1)
+    result = []
+    for sniff in stored_sniff_entities:
+        service = get_service_by_id(sniff.service_id)
+        if sniff.last_tested_time < one_hour_ago and service.test_has_access(sniff):
+            deleting_sniff_ids.append(sniff.id)
+        else:
+            result.append(service.provide_service_dto(sniff))
+            added_service_ids.append(service.service_id)
+    db_client.delete_sniff_entities_by_ids(deleting_sniff_ids)
+    for service in SERVICE_INSTANCES_LIST:
+        if not added_service_ids.__contains__(service.service_id):
+            result.append(service.provide_service_dto(stored_sniff_entity=None))
+    return result
 
 
 @app.post("/sniff/", response_model=SniffResponseDto)
@@ -52,9 +75,9 @@ async def sniff_packets(sniff_dto: SniffDto):
         if service is None:
             raise HTTPException(status_code=404, detail=f"No service matched to {str(sniff_dto)}")
 
-        if service.test_has_access(sniff_dto):
+        sniff_entity = sniff_dto.to_entity()
+        if service.test_has_access(sniff_entity):
             db_client: DatabaseClient = DatabaseClient.get_instance()
-            sniff_entity = sniff_dto.to_entity()
             db_client.store_sniff_data(sniff_entity)
             print(f"Service {service.service_id} for client id {sniff_dto.client_id} was captured.")
             return SniffResponseDto(status=ServiceStatusForUser.captured)
@@ -67,19 +90,28 @@ async def sniff_packets(sniff_dto: SniffDto):
 @app.post("/create-shared-session/", response_model=str)
 async def create_shared_session(request: SharedSessionCreationRequestDto):
     db_client: DatabaseClient = DatabaseClient.get_instance()
+    all_service_ids = [s.service_id for s in SERVICE_INSTANCES_LIST]
+    if not set(all_service_ids) >= set(request.service_ids):
+        raise HTTPException(status_code=400, detail="Requested service ids are not valid")
     shared_session_entity = db_client.create_shared_session(request)
     return shared_session_entity.session_id
 
 
 @app.delete("/delete-shared-session/")
-async def create_shared_session(request: SharedSessionDeleteRequestDto):
+async def delete_shared_session(request: SharedSessionDeleteRequestDto):
     db_client: DatabaseClient = DatabaseClient.get_instance()
     db_client.delete_session(request)
 
 
-@app.get("/get-shared-session/")
-async def create_shared_session(session_id: str, ):
+@app.get("/get-shared-session/", response_model=List[HeaderAndCookiesDto])
+async def get_shared_session(session_id: str):
     db_client: DatabaseClient = DatabaseClient.get_instance()
     session: SharedSessionEntity = db_client.get_session(session_id)
-    sniff = session.sniff_entity
-    return HeaderAndCookiesDto(headers=sniff.headers, cookies=sniff.cookies)
+    service_ids = json.loads(session.service_ids)
+    sniff_entities = db_client.get_sniff_entities_by_client_and_services(client_id=session.client_id,
+                                                                         service_ids=service_ids)
+    result = []
+    for sniff_entity in sniff_entities:
+        result.append(HeaderAndCookiesDto(headers=sniff_entity.headers, cookies=sniff_entity.cookies,
+                                          service_id=sniff_entity.service_id))
+    return result

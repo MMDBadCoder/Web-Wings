@@ -1,4 +1,4 @@
-from models.sniff import SniffDto
+from models.sniff import SniffEntity
 from .service_base import ServiceBase
 
 
@@ -18,5 +18,5 @@ class IranCellService(ServiceBase):
                          sniffing_domains=["my.irancell.ir"],
                          browser_domains=["my.irancell.ir"])
 
-    def test_has_access(self, stored_sniff_data: SniffDto) -> bool:
+    def test_has_access(self, sniff_entity: SniffEntity) -> bool:
         return True
