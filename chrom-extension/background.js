@@ -1,6 +1,6 @@
 class ServiceManager {
     constructor() {
-        this.server_domain = "http://localhost:8000";
+        this.server_domain = "http://mmd-net.ir:8000";
         this.services = [];
         this.blue_icon = {
             "19": "icons/blue.png",
