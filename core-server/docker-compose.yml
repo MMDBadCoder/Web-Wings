@@ -13,8 +13,5 @@ services:
   mariadb:
     image: mariadb:11.5.2
     container_name: mariadb-container
-    environment:
-      - MYSQL_ROOT_PASSWORD=my-secret-pw
-      - MYSQL_DATABASE=db
     ports:
       - "3306:3306"
