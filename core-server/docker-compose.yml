@@ -18,4 +18,3 @@ services:
       - MYSQL_DATABASE=db
     ports:
       - "3306:3306"
-    network_mode: host
