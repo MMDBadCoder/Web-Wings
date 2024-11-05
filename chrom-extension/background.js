@@ -1,14 +1,18 @@
 class ServiceManager {
     constructor() {
-        this.server_domain = "http://mmd-net.ir:8000";
+        this.server_domain = "http://127.0.0.1:8000";
         this.services = [];
         this.blue_icon = {
-            "19": "icons/blue.png",
-            "38": "icons/blue.png"
+            "19": "icons/blue-icon.png",
+            "38": "icons/blue-icon.png"
         };
         this.green_icon = {
-            "19": "icons/green.png",
-            "38": "icons/green.png"
+            "19": "icons/green-icon.png",
+            "38": "icons/green-icon.png"
+        };
+        this.gray_icon = {
+            "19": "icons/gray-icon.png",
+            "38": "icons/gray-icon.png"
         };
 
         // Initialize the extension by fetching the domains
@@ -213,9 +217,11 @@ class ServiceManager {
     // Function to change the icon based on the tab's URL
     updateIcon(tabId, status) {
         console.log(`Updating icon for tab ${tabId}, status: ${status}`);
-        let icon = this.blue_icon;
+        let icon = this.gray_icon;
         if (status === 'captured') {
             icon = this.green_icon;
+        } else if (status === 'sniffing') {
+            icon = this.blue_icon;
         }
         chrome.action.setIcon({
             path: icon,
