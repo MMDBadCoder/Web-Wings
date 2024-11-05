@@ -3,7 +3,7 @@ from typing import List, Optional
 
 import matplotlib.pyplot as plt
 
-from services.service_base import DataPoint
+from models import DataPoint
 
 
 # Function to generate the multi-line cumulative chart
