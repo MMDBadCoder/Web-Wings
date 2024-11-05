@@ -1,5 +1,6 @@
 from models.sniff import SniffEntity
 from .service_base import ServiceBase
+import requests
 
 
 class IranCellService(ServiceBase):
@@ -19,4 +20,18 @@ class IranCellService(ServiceBase):
                          browser_domains=["my.irancell.ir"])
 
     def test_has_access(self, sniff_entity: SniffEntity) -> bool:
-        return True
+        headers = {
+            'Accept': 'application/json, text/plain, */*',
+            'Accept-Language': 'fa',
+            'Connection': 'keep-alive',
+            'Referer': 'https://my.irancell.ir/',
+            'Sec-Fetch-Dest': 'empty',
+            'Sec-Fetch-Mode': 'cors',
+            'Sec-Fetch-Site': 'same-origin'
+        }
+        for stored_header in sniff_entity.headers:
+            headers[stored_header['name']] = stored_header['value']
+        headers['Cookie'] = sniff_entity.cookies
+
+        response = requests.get('https://my.irancell.ir/api/sim/v1/profile', headers=headers)
+        return response.status_code is 200
