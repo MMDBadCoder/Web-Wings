@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sessions</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', path='web-wings.ico') }}">
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <!-- SweetAlert2 JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</head>
+
+<body>
+<div class="ui container" style="margin-top: 30px;">
+    <h2 class="ui header">Session List</h2>
+
+    {% if sessions %}
+    <table class="ui celled striped table"
+           style="border: 2px solid #2185d0; border-radius: 5px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+        <thead style="background-color: #2185d0; color: white;">
+        <tr>
+            <th><i class="file alternate outline icon"></i> Title</th>
+            <th><i class="key icon"></i> Session ID</th>
+            <th><i class="list icon"></i> Service IDs</th>
+            <th><i class="calendar outline icon"></i> Creation Time</th>
+            <th><i class="clock outline icon"></i> Expiration Time</th>
+            <th><i class="trash alternate outline icon"></i> Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for session in sessions %}
+        <tr>
+            <td>{{ session.title }}</td>
+            <td>{{ session.session_id }}</td>
+            <td>{{ session.service_ids }}</td>
+            <td>{{ session.creation_time }}</td>
+            <td>{{ session.expiration_time }}</td>
+            <td>
+                <button class="ui red icon button delete-session" title="Delete Session"
+                        data-session-id="{{ session.session_id }}">
+                    <i class="trash alternate outline icon"></i>
+                </button>
+            </td>
+
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="ui placeholder segment" style="margin-top: 20px;">
+        <div class="ui icon header">
+            <i class="inbox icon"></i>
+            No Sessions Available
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Session Creation Form -->
+    <h3 class="ui dividing header">Share a Session</h3>
+    <form class="ui form"
+          style="border: 2px solid #ff7717; border-radius: 5px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 15px">
+        <input type="hidden" name="client_id" value="{{ client_id }}">
+
+        <div class="field">
+            <label>Title</label>
+            <input type="text" name="title" placeholder="Session Title" required>
+        </div>
+
+        <div class="field">
+            <label>Services</label>
+            <div class="ui checkbox">
+                {% for service in services %}
+                <div class="field">
+                    <div class="ui checkbox">
+                        <input type="checkbox" name="service_ids" value="{{ service.id }}"
+                               id="service_{{ service.id }}"
+                               {% if not service.active %} disabled {% endif %}>
+                        <label for="service_{{ service.id }}">{{ service.title }}</label>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="field">
+            <label>Expiration Duration (days)</label>
+            <input type="number" name="expiration_duration_days" value="10" min="1" required>
+        </div>
+
+        <button class="ui primary button" type="button" id="create-session">Create</button>
+    </form>
+
+</div>
+</body>
+
+<script>
+    // Session creation logic
+    document.getElementById('create-session').addEventListener('click', async function (event) {
+        event.preventDefault();  // Prevent default form submission
+
+        // Gather form data
+        const clientId = document.querySelector('input[name="client_id"]').value;
+        const title = document.querySelector('input[name="title"]').value;
+        const expirationDays = parseInt(document.querySelector('input[name="expiration_duration_days"]').value, 10);
+
+        // Gather selected service IDs
+        const selectedServices = Array.from(document.querySelectorAll('input[name="service_ids"]:checked'))
+            .map(input => parseInt(input.value, 10));
+
+        // Validation: Ensure at least one service is selected
+        if (selectedServices.length === 0) {
+            Swal.fire("Error", "Please select at least one service.", "warning");
+            return;
+        }
+
+        // Prepare request payload
+        const payload = {
+            client_id: clientId,
+            title: title,
+            service_ids: selectedServices,
+            expiration_duration_days: expirationDays
+        };
+
+        try {
+            // Send data to the server
+            const response = await fetch('/create-shared-session/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(payload),
+            });
+
+            // Handle response
+            if (response.ok) {
+                await response.json();
+                Swal.fire("Success", "Session created successfully.", "success").then(() => {
+                    location.reload();  // Refresh the page on success
+                });
+            } else {
+                const error = await response.json();
+                Swal.fire("Error", "Error creating session: " + (error.detail || "Unknown error"), "error");
+            }
+        } catch (error) {
+            console.error("Error submitting form:", error);
+            Swal.fire("Error", "An unexpected error occurred.", "error");
+        }
+    });
+</script>
+
+<script>
+    // Session deletion logic
+    document.querySelectorAll('.delete-session').forEach(button => {
+        button.addEventListener('click', async function (event) {
+            event.preventDefault();  // Prevent default button behavior
+
+            // Get client_id and session_id from data attributes
+            const clientId = "{{ client_id }}";
+            const sessionId = this.getAttribute('data-session-id');
+
+            // Confirm deletion with SweetAlert2
+            const confirmed = await Swal.fire({
+                title: "Are you sure?",
+                text: "Do you really want to delete this session?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, delete it!",
+                cancelButtonText: "Cancel",
+                reverseButtons: true
+            });
+
+            if (!confirmed.isConfirmed) return;
+
+            try {
+                // Send DELETE request to the API
+                const response = await fetch(`/delete-shared-session/${clientId}/${sessionId}/`, {
+                    method: 'DELETE',
+                });
+
+                // Check if the deletion was successful
+                if (response.ok) {
+                    Swal.fire("Deleted!", "Session deleted successfully.", "success").then(() => {
+                        location.reload();  // Reload the page to refresh the session list
+                    });
+                } else {
+                    const error = await response.json();
+                    Swal.fire("Error", "Error deleting session: " + (error.detail || "Unknown error"), "error");
+                }
+            } catch (error) {
+                console.error("Error deleting session:", error);
+                Swal.fire("Error", "An unexpected error occurred while deleting the session.", "error");
+            }
+        });
+    });
+</script>
+
+
+</html>

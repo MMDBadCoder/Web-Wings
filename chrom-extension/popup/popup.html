@@ -58,7 +58,7 @@
   </style>
 </head>
 
-<body>
+<body style="display: flex; flex-direction: column; justify-content: space-between; padding: 25px;">
   <!-- Extension Title -->
   <div class="extension-title">Web Wings</div>
 
@@ -70,8 +70,17 @@
   <!-- Separator -->
   <div class="ui divider"></div>
 
+  <!-- Centered Button to open URL with spacing from the bottom -->
+  <div style="text-align: center; padding-bottom: 25px">
+    <button id="openLinkButton" class="ui large button primary">
+      <i class="share icon"></i>
+      Share Session
+    </button>
+  </div>
+
   <!-- Popup JavaScript -->
   <script src="popup.js"></script>
 </body>
+
 
 </html>

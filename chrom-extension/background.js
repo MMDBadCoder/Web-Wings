@@ -1,6 +1,6 @@
 class ServiceManager {
     constructor() {
-        this.server_domain = "http://127.0.0.1:8000";
+        this.server_domain = "http://web-wings.ir";
         this.services = [];
         this.blue_icon = {
             "19": "icons/blue-icon.png",
@@ -272,8 +272,8 @@ class ServiceManager {
                     } else {
                         sendResponse({ status: service.status });
                     }
-                } else if (message.action === 'getAllData') {
-                    sendResponse({ services: serviceManager.services, client_id: clientID });
+                } else if (message.action === 'getClientId') {
+                    sendResponse({ client_id: clientID });
                 }
             });
         });

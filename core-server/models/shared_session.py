@@ -12,10 +12,9 @@ class SharedSessionEntity(Base):
     id = Column(Integer, primary_key=True, index=True, nullable=False)
     client_id = Column(String(100), index=True, nullable=False)
     session_id = Column(String(100), index=True, nullable=False)
-
+    title = Column(String(100), index=False, nullable=False, default="No Named")
     # Storing service_ids as a list of integers using JSON column
-    service_ids = Column(JSON, nullable=False)
-
+    service_ids = Column(JSON, index=False, nullable=False)
     creation_time = Column(DateTime, server_default=func.now(), nullable=False)
     expiration_duration_days = Column(Integer, nullable=True)
     expiration_time = Column(DateTime, nullable=False)
@@ -29,6 +28,7 @@ class HeaderAndCookiesDto(BaseModel):
 
 class SharedSessionCreationRequestDto(BaseModel):
     client_id: str
+    title: str
     service_ids: List[int]
     expiration_duration_days: int
 

@@ -1,12 +1,13 @@
 import json
 import secrets
 from datetime import datetime, timedelta
+from typing import List
 
 from fastapi import HTTPException
 from sqlalchemy import create_engine, func
 from sqlalchemy.orm import sessionmaker
 
-from models.shared_session import SharedSessionEntity, SharedSessionCreationRequestDto, SharedSessionDeleteRequestDto
+from models.shared_session import SharedSessionEntity, SharedSessionCreationRequestDto
 from models.sniff import SniffEntity
 from settings import DATABASE_URL
 
@@ -51,7 +52,7 @@ class DatabaseClient:
             print(f"Failed to store sniff entity: {e}")
             raise e
 
-    def get_sniff_entities_by_client_id(self, client_id: str):
+    def get_sniff_entities_by_client_id(self, client_id: str) -> List[SniffEntity]:
         try:
             return self.session.query(SniffEntity).filter(SniffEntity.client_id == client_id).all()
         except Exception as e:
@@ -87,6 +88,7 @@ class DatabaseClient:
             expiration_time = datetime.now() + timedelta(days=creation_request.expiration_duration_days)
             shared_session = SharedSessionEntity(
                 client_id=client_id,
+                title=creation_request.title,
                 service_ids=json.dumps(creation_request.service_ids),
                 session_id=session_id,
                 expiration_duration_days=creation_request.expiration_duration_days,
@@ -107,11 +109,11 @@ class DatabaseClient:
             print(f"Failed to create shared session: {e}")
             raise HTTPException(status_code=500, detail=str(e))
 
-    def delete_session(self, request: SharedSessionDeleteRequestDto):
+    def delete_session(self, client_id: str, session_id: str):
         try:
             self.session.query(SharedSessionEntity).filter(
-                SharedSessionEntity.session_id == request.session_id,
-                SharedSessionEntity.client_id == request.client_id
+                SharedSessionEntity.session_id == session_id,
+                SharedSessionEntity.client_id == client_id
             ).delete(synchronize_session=False)
             self.session.commit()
 
@@ -156,6 +158,18 @@ class DatabaseClient:
             print(f"Error occurred while deleting expired sessions: {e}")
         finally:
             self.session.close()
+
+    def get_sessions_by_client_id(self, client_id: str) -> List[SharedSessionEntity]:
+        """
+        Retrieves a list of SharedSessionEntity records that match the given client_id.
+        """
+        try:
+            return self.session.query(SharedSessionEntity).filter(
+                SharedSessionEntity.client_id == client_id
+            ).all()
+        except Exception as e:
+            print(f"Error occurred while fetching sessions: {e}")
+            raise HTTPException(status_code=500, detail=str(e))
 
     def close(self):
         try:

@@ -1,19 +1,9 @@
 
-// Function to get the status of the current tab asynchronously
 function getStatusOfTab(callback) {
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
         const domain = new URL(tabs[0].url).hostname; // Extract the domain from the current tab
         chrome.runtime.sendMessage({ action: 'getStatus', domain: domain }, function (response) {
             callback(response.status);
-        });
-    });
-}
-
-function getAllData(callback) {
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-        chrome.runtime.sendMessage({ action: 'getAllData' }, function (response) {
-            console.log("Received message response in popup:", response);
-            callback(response);
         });
     });
 }
@@ -41,7 +31,26 @@ function updateStatusDisplay() {
     });
 }
 
-// Initialize the status and checkboxes on popup load
+function getClientId(callback) {
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+        chrome.runtime.sendMessage({ action: 'getClientId' }, function (response) {
+            callback(response.client_id);
+        });
+    });
+}
+
+function setButtonListener() {
+    getClientId(function (client_id) {
+        const openLinkButton = document.getElementById('openLinkButton');
+        openLinkButton.addEventListener('click', function () {
+            chrome.tabs.create({ url: 'http://web-wings.ir/sessions/' + client_id });
+        });
+    });
+}
+
+
+
 document.addEventListener('DOMContentLoaded', function () {
     updateStatusDisplay();
+    setButtonListener();
 });
