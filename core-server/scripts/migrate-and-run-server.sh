@@ -5,4 +5,5 @@ sleep 10
 echo "Try to execute migrations..."
 alembic -c alembic/alembic.ini upgrade head
 echo "Running the application"
-uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+docker run -d --name web-wings-core --network=host web-wings:0.2
+
