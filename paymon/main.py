@@ -13,7 +13,7 @@ headers = {
 params = {
     'session_id': share_session
 }
-response = requests.get('http://127.0.0.1:8000/get-shared-session/', params=params, headers=headers)
+response = requests.get('http://web-wings.ir/get-shared-session/', params=params, headers=headers)
 services_data = response.json()
 iran_cell_service_data = [s for s in services_data if s['service_id'] == 1]
 if not iran_cell_service_data:
