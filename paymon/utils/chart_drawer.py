@@ -1,8 +1,8 @@
 from datetime import datetime
 from typing import List, Optional
-
 import matplotlib.pyplot as plt
-
+import matplotlib.dates as mdates
+from matplotlib.ticker import MaxNLocator
 from models import DataPoint
 
 
@@ -50,6 +50,7 @@ def generate_multi_cumulative_chart(data_lists: List[List[DataPoint]],
     # Format the x-axis to show human-readable dates
     plt.gca().xaxis.set_major_formatter(plt.matplotlib.dates.DateFormatter('%Y-%m-%d'))
     plt.gca().xaxis.set_major_locator(plt.matplotlib.dates.MonthLocator())
+    plt.gca().xaxis.set_major_locator(MaxNLocator(nbins=30))  # Limiting to 30 ticks
 
     # Rotate date labels on x-axis for better readability
     plt.gcf().autofmt_xdate()
