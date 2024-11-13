@@ -2,9 +2,13 @@ from typing import List
 
 from services.iran_cell import IranCellService
 from services.service_base import ServiceBase
+from services.snapp import SnappService
+from services.tapsi import TapsiService
 
 SERVICE_INSTANCES_LIST: List[ServiceBase] = [
-    IranCellService.get_instance()
+    IranCellService.get_instance(),
+    TapsiService.get_instance(),
+    SnappService.get_instance(),
 ]
 
 
