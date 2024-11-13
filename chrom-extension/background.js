@@ -70,7 +70,7 @@ class ServiceManager {
 
         // Check the services array for the domain
         for (const service of this.services) {
-            if (service.sniffing_domains.includes(domain)) {
+            if (service.sniffing_domains.includes(domain) || service.browser_domains.includes(domain)) {
                 console.log("Service found for domain:", domain);
                 return service; // Return the service if domain matches
             }
@@ -179,7 +179,7 @@ class ServiceManager {
     requestListener(details) {
         const url = details.url;
         console.log("Intercepted request to URL:", url);
-
+        
         if (!this.isJsonRequest(details.requestHeaders)) {
             console.log(`Skipping non-JSON request: ${url}`);
             return;
