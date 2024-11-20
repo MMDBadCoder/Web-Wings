@@ -24,6 +24,7 @@ class HeaderAndCookiesDto(BaseModel):
     service_id: int
     headers: list
     cookies: str
+    domains: List[str]
 
 
 class SharedSessionCreationRequestDto(BaseModel):

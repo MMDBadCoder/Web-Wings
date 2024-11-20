@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session Injector</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
+
+
+    <style>
+        body {
+            font-family: 'Lato', sans-serif;
+            margin: 0;
+            padding: 10px;
+            background-color: #f7f7f7;
+        }
+
+        .lux {
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+        }
+
+        button {
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="ui segment lux">
+        <form class="ui form" id="session-form">
+            <div class="field">
+                <label for="session-id">Session ID</label>
+                <input type="text" id="session-id" name="session-id" placeholder="Enter session ID" required>
+            </div>
+            <button type="submit" class="ui button primary">Inject</button>
+        </form>
+    </div>
+</body>
+
+<script src="popup.js"></script>
+
+</html>

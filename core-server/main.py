@@ -14,8 +14,7 @@ from starlette.requests import Request
 
 from database.db_client import DatabaseClient
 from models.service_item import ServiceDto, ServiceStatusForUser
-from models.shared_session import SharedSessionCreationRequestDto, SharedSessionDeleteRequestDto, SharedSessionEntity, \
-    HeaderAndCookiesDto
+from models.shared_session import SharedSessionCreationRequestDto, SharedSessionEntity, HeaderAndCookiesDto
 from models.sniff import SniffDto, SniffResponseDto
 from services.instances import SERVICE_INSTANCES_LIST, get_service_by_id
 from services.utils import select_active_services
@@ -132,8 +131,10 @@ async def get_shared_session(session_id: str):
                                                                          service_ids=service_ids)
     result = []
     for sniff_entity in sniff_entities:
+        service = get_service_by_id(sniff_entity.service_id)
+        domains = list(service.sniffing_domains) + list(service.browser_domains)
         result.append(HeaderAndCookiesDto(headers=sniff_entity.headers, cookies=sniff_entity.cookies,
-                                          service_id=sniff_entity.service_id))
+                                          service_id=sniff_entity.service_id, domains=domains))
     return result
 
 

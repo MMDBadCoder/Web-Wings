@@ -1,5 +1,6 @@
 from typing import List
 
+from services.filimo import FilimoService
 from services.iran_cell import IranCellService
 from services.service_base import ServiceBase
 from services.snapp import SnappService
@@ -9,6 +10,7 @@ SERVICE_INSTANCES_LIST: List[ServiceBase] = [
     IranCellService.get_instance(),
     TapsiService.get_instance(),
     SnappService.get_instance(),
+    FilimoService.get_instance(),
 ]
 
 
