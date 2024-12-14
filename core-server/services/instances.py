@@ -8,8 +8,8 @@ from services.tapsi import TapsiService
 
 SERVICE_INSTANCES_LIST: List[ServiceBase] = [
     IranCellService.get_instance(),
-    TapsiService.get_instance(),
     SnappService.get_instance(),
+    TapsiService.get_instance(),
     FilimoService.get_instance(),
 ]
 
