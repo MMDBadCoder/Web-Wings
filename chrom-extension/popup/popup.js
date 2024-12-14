@@ -43,7 +43,7 @@ function setButtonListener() {
     getClientId(function (client_id) {
         const openLinkButton = document.getElementById('openLinkButton');
         openLinkButton.addEventListener('click', function () {
-            chrome.tabs.create({ url: 'http://web-wings.ir/sessions/' + client_id });
+            chrome.tabs.create({ url: 'http://localhost:8000/sessions/' + client_id });
         });
     });
 }
